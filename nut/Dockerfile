@@ -50,6 +50,15 @@ RUN mkdir -p /lib/nut \
 # Copy root filesystem
 COPY rootfs /
 
+# Point NUT to /etc/nut
+ENV NUT_CONFPATH=/etc/nut
+
+# Ensure /usr/local/ups exists, then link etc → /etc/nut
+RUN mkdir -p /usr/local/ups && \
+    rm -rf /usr/local/ups/etc && \
+    ln -sfn /etc/nut /usr/local/ups/etc
+
+
 # 1) Point NUT to the right config dir at runtime too
 ENV NUT_CONFPATH=/etc/nut
 
