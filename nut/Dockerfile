@@ -47,13 +47,14 @@ RUN mkdir -p /lib/nut \
 
 
 
-############ This part is the same as source#############################
-
-
 # Copy root filesystem
 COPY rootfs /
 
+# 1) Point NUT to the right config dir at runtime too
+ENV NUT_CONFPATH=/etc/nut
 
+# 2) Make /usr/local/ups/etc resolve to /etc/nut (correctly)
+RUN rm -rf /usr/local/ups/etc && ln -s /etc/nut /usr/local/ups/etc
 
 # Make scripts executable and strip CRLFs — no temp files created
 RUN set -eux; \
@@ -65,6 +66,7 @@ RUN set -eux; \
   find /etc/services.d -type f -name finish -print0 2>/dev/null | xargs -0 -r chmod 755; \
   rm -f /etc/cont-init.d/_tmp
 
+############ This part is the same as source#############################
 
 
 # Build arguments
