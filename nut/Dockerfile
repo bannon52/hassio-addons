@@ -53,6 +53,9 @@ COPY rootfs /
 # Point NUT to /etc/nut
 ENV NUT_CONFPATH=/etc/nut
 
+
+RUN mkdir -p /var/run/nut /var/state && ln -sfn /var/run/nut /var/state/ups
+
 # Ensure /usr/local/ups exists, then link etc → /etc/nut
 RUN mkdir -p /usr/local/ups && \
     rm -rf /usr/local/ups/etc && \
