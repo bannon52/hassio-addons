@@ -34,8 +34,11 @@ RUN git clone https://github.com/networkupstools/nut.git \
       --with-usb --with-modbus \
       --with-modbus-includes=-I/usr/local/include/modbus \
       --with-modbus-libs="-L/usr/local/lib -lmodbus" \
+      --sysconfdir=/etc/nut \
+      --with-statepath=/var/run/nut
  && make -j"$(nproc)" \
  && install -m0755 drivers/apc_modbus /usr/sbin/apc_modbus
+
 
 RUN mkdir -p /etc/nut /var/run/nut
 # COPY rootfs /   # keep if you have s6 scripts
