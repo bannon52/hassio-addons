@@ -41,6 +41,8 @@ RUN mkdir -p /etc/nut /var/run/nut
 # COPY rootfs /   # keep if you have s6 scripts
 
 
+RUN mkdir -p /lib/nut \
+ && ln -sf /usr/sbin/apc_modbus /lib/nut/apc_modbus
 
 
 
