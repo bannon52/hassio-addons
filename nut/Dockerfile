@@ -46,6 +46,22 @@ RUN mkdir -p /etc/nut /var/run/nut
 # Copy root filesystem
 COPY rootfs /
 
+
+
+# Ensure s6 init scripts are executable and LF-only
+RUN set -eux; \
+    find /etc/cont-init.d -type f -print0 2>/dev/null | xargs -0 -r chmod 755; \
+    find /etc/services.d -type f -name run -print0 2>/dev/null | xargs -0 -r chmod 755; \
+    find /etc/services.d -type f -name finish -print0 2>/dev/null | xargs -0 -r chmod 755; \
+    # strip CRLF if the files were edited on Windows
+    awk 'BEGIN{RS="\n";ORS="\n"}{sub(/\r$/,"");print}' /etc/cont-init.d/* >/tmp/_c && cat /tmp/_c >/etc/cont-init.d/_tmp || true; \
+    for f in /etc/cont-init.d/* /etc/services.d/*/run /etc/services.d/*/finish; do \
+        [ -f "$f" ] && sed -i 's/\r$//' "$f"; \
+    done || true
+
+
+
+
 # Build arguments
 ARG BUILD_ARCH
 ARG BUILD_DATE
