@@ -4,22 +4,21 @@ FROM ${BUILD_FROM}
 
 ############################### Imported for modbus ################################
 
-# Install build deps
+# Build deps (Debian)
 RUN apt-get update && \
     DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
       build-essential autoconf automake libtool git pkg-config \
       libusb-1.0-0 libusb-1.0-0-dev ca-certificates && \
     rm -rf /var/lib/apt/lists/*
 
-
-# libmodbus with USB-RTU backend
+# libmodbus (USB-RTU branch)
 WORKDIR /opt/build
 RUN git clone -b rtu_usb https://github.com/networkupstools/libmodbus.git \
  && cd libmodbus && ./autogen.sh \
  && ./configure --with-libusb --enable-static --disable-shared --prefix=/usr/local \
  && make -j"$(nproc)" && make install && ldconfig
 
-# NUT (apc_modbus only), linked to that libmodbus
+# NUT apc_modbus
 WORKDIR /opt/build
 RUN git clone https://github.com/networkupstools/nut.git \
  && cd nut && ./autogen.sh \
@@ -30,14 +29,9 @@ RUN git clone https://github.com/networkupstools/nut.git \
       --with-modbus-libs="-L/usr/local/lib -lmodbus" \
  && make -j"$(nproc)" \
  && install -m0755 drivers/apc_modbus /usr/sbin/apc_modbus
-# Copy in the stock add-on rootfs (if you copied it) so s6/run scripts still work.
-# If your add-on uses run.sh/CONFD templates, ensure they are present.
-# Example: COPY rootfs/ /
 
-# Final touch: create NUT dirs expected by the add-on (if not already from rootfs)
 RUN mkdir -p /etc/nut /var/run/nut
-
-# Default command will be handled by the add-on's run script
+# COPY rootfs /   # keep if you have s6 scripts
 
 
 
