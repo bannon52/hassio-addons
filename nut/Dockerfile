@@ -18,6 +18,9 @@ RUN git clone -b rtu_usb https://github.com/networkupstools/libmodbus.git \
  && ./configure --with-libusb --enable-static --disable-shared --prefix=/usr/local \
  && make -j"$(nproc)" && make install && ldconfig
 
+# ▶ Skip Augeas during autogen (no Python needed)
+ENV WITHOUT_NUT_AUGEAS=true
+
 # NUT apc_modbus
 WORKDIR /opt/build
 RUN git clone https://github.com/networkupstools/nut.git \
