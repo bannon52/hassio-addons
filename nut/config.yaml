@@ -1,6 +1,6 @@
 ---
 name: Network UPS Tools
-version: dev07
+version: dev08
 slug: nut_modbus
 description: NUT with apc_modbus over USB (patched libmodbus)
 url: https://github.com/hassio-addons/addon-nut
