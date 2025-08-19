@@ -5,11 +5,15 @@ FROM ${BUILD_FROM}
 ############################### Imported for modbus ################################
 
 # Build deps (Debian)
+
 RUN apt-get update && \
     DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
       build-essential autoconf automake libtool git pkg-config \
-      libusb-1.0-0 libusb-1.0-0-dev ca-certificates && \
-    rm -rf /var/lib/apt/lists/*
+      libusb-1.0-0 libusb-1.0-0-dev ca-certificates \
+      nut-server nut-client \
+    && rm -rf /var/lib/apt/lists/*
+
+
 
 # libmodbus (USB-RTU branch)
 WORKDIR /opt/build
@@ -48,17 +52,15 @@ COPY rootfs /
 
 
 
-# Ensure s6 init scripts are executable and LF-only
+# Make scripts executable and strip CRLFs — no temp files created
 RUN set -eux; \
-    find /etc/cont-init.d -type f -print0 2>/dev/null | xargs -0 -r chmod 755; \
-    find /etc/services.d -type f -name run -print0 2>/dev/null | xargs -0 -r chmod 755; \
-    find /etc/services.d -type f -name finish -print0 2>/dev/null | xargs -0 -r chmod 755; \
-    # strip CRLF if the files were edited on Windows
-    awk 'BEGIN{RS="\n";ORS="\n"}{sub(/\r$/,"");print}' /etc/cont-init.d/* >/tmp/_c && cat /tmp/_c >/etc/cont-init.d/_tmp || true; \
-    for f in /etc/cont-init.d/* /etc/services.d/*/run /etc/services.d/*/finish; do \
-        [ -f "$f" ] && sed -i 's/\r$//' "$f"; \
-    done || true
-
+  find /etc/cont-init.d -type f -print0 2>/dev/null | xargs -0 -r sed -i 's/\r$//'; \
+  find /etc/services.d -type f -name run    -print0 2>/dev/null | xargs -0 -r sed -i 's/\r$//'; \
+  find /etc/services.d -type f -name finish -print0 2>/dev/null | xargs -0 -r sed -i 's/\r$//'; \
+  find /etc/cont-init.d -type f -print0 2>/dev/null | xargs -0 -r chmod 755; \
+  find /etc/services.d -type f -name run    -print0 2>/dev/null | xargs -0 -r chmod 755; \
+  find /etc/services.d -type f -name finish -print0 2>/dev/null | xargs -0 -r chmod 755; \
+  rm -f /etc/cont-init.d/_tmp
 
 
 
